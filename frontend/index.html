@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instant Offer Automation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+    <style>
+        body {
+            padding: 3%;
+        }
+        .table-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-left: -0.5%
+        }
+        .table {
+            width: 15%;
+        }
+        .table td, .table th {
+            padding: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+<div class="mt-4">
+    <h1 class="mb-3"><b>Instant Offer Automation</b></h1>
+    <h4 class="mb-4">Generate instant offers for your products with ease! <i class="fas fa-car"></i></h4>
+</div>
+<div class="container-fluid px-0">
+    <button class="btn btn-secondary btn-lg mb-4" id="generateOfferButton">Generate Offer</button>
+
+    <div class="container-fluid"> <div id="result_container" class="table-container"></div> </div>
+
+    <div id="question" class="alert alert-primary mt-3" role="alert" style="display:none;">Question</div>
+
+    <div id="user_response" class="alert alert-primary mt-3" role="alert" style="display:none;">User Response</div>
+
+    <div id="status" class="alert alert-warning mt-3" role="alert" style="display:none;">Status</div>
+
+    <div id="error_message" class="alert alert-danger mt-3" role="alert" style="display:none;">Error Message</div>
+
+    <div id="termination_message" class="alert alert-secondary mt-3" role="alert" style="display:none;">Termination Message
+    </div>
+
+    <audio id="audioPlayer" style="display:none;"></audio>
+</div>
+
+<!-- Bootstrap 4 JS and its dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Your custom script -->
+<script src="script.js"></script>
+</body>
+</html>
