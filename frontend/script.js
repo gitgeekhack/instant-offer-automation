@@ -3,7 +3,7 @@ let recorder;
 let isRecording = false;
 
 const channelId = generateUUID();
-const host_url = "7011-61-12-85-170.ngrok-free.app"
+const host_url = "localhost:8000"
 
 const generateOfferButton = document.getElementById('generateOfferButton');
 const question = document.getElementById('question');
@@ -28,7 +28,7 @@ async function initializeWebSocket() {
         analyser.fftSize = 2048;
         dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-        socket = new WebSocket(`wss://${host_url}/ws/${channelId}`);
+        socket = new WebSocket(`ws://${host_url}/ws/${channelId}`);
 
         socket.onopen = () => {
             console.log('WebSocket connection established');

@@ -4,7 +4,7 @@ import requests
 
 class InstantOffer:
     MAX_RETRY = 5
-    VOICE_NOTE_URL = "https://f437-61-12-85-170.ngrok-free.app"
+    VOICE_NOTE_URL = "http://localhost:8000"
     VOICE_NOTE_PATH = "static/questions"
     RESPONSE_PATH = "static/user_responses.json"
     AGENT_VOICES = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]

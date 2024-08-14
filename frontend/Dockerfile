@@ -1,14 +1,9 @@
-# Use the official Nginx image as a base
-FROM nginx:alpine
+FROM python:3-alpine
 
-# Remove the default Nginx welcome page
-RUN rm /usr/share/nginx/html/index.html
+WORKDIR /usr/src/app
 
-COPY . /usr/share/nginx/html/
+COPY . .
 
-# Expose port 80 to allow access to the web server
-EXPOSE 80
+EXPOSE 8090
 
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
-
+CMD ["python3", "-m", "http.server", "8090"]
