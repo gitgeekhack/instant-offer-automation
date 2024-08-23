@@ -3,7 +3,7 @@ let recorder;
 let isRecording = false;
 
 const channelId = generateUUID();
-const host_url = "localhost:8091"
+const host_url = "localhost:8080"
 
 const generateOfferButton = document.getElementById('generateOfferButton');
 const question = document.getElementById('question');

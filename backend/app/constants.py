@@ -4,7 +4,7 @@ import requests
 
 class InstantOffer:
     MAX_RETRY = 5
-    VOICE_NOTE_URL = "http://localhost:8091"
+    VOICE_NOTE_URL = "http://localhost:8080"
     VOICE_NOTE_PATH = "static/questions"
     RESPONSE_PATH = "static/user_responses.json"
     AGENT_VOICES = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
@@ -16,11 +16,9 @@ class InstantOffer:
         STRICTLY follow the JSON format of {result_json}.
         The response provided by the user is related to {question_key}.
 
-        Note that the current year is {current_year}.
-
         Follow these guidelines for extraction of information from the {question_key} and any other datapoint if present in the user response:
-        1. purchase_year:
-        - Extract the year in YYYY format.
+        1. model_year:
+        - Extract the model year in YYYY format.
         - If the user expresses uncertainty (e.g., "I don't know the year"), add a new key "is_negation": True.
         - If you find unrelated response, other than the negation, add a new key "error_message" with an informative error_message in the final JSON response.        
 
@@ -71,9 +69,9 @@ class InstantOffer:
         Ensure that only one value in the dictionary is set to True. If the user does not explicitly mention updating any values, set all values in the dictionary to False.
 
         For example:
-        - User says "I want to update the purchase_year" -> set purchase_year to True.
-        - User says "Update purchase_year" -> set purchase_year to True.
-        - If the user provides updated value within their update statement (e.g., "I want to update the purchase year to 2020") -> set corresponding key value to False. (here purchase_year)
+        - User says "I want to update the model_year" -> set model_year to True.
+        - User says "Update model_year" -> set model_year to True.
+        - If the user provides updated value within their update statement (e.g., "I want to update the purchase year to 2020") -> set corresponding key value to False. (here model_year)
         - If the user just mention a year without saying "update" -> set value to False.
         - If the user does not mention updating any values, set all values to False.
 
@@ -103,10 +101,10 @@ class InstantOffer:
                              "Can you tell me the details regarding your vehicle?",
                              "Can you share the information regarding your vehicle?"],
 
-        "purchase_year": ["Can you tell me the year you bought your car?",
-                          "Could you let me know the year you purchased your car?",
-                          "Can you provide the year in which you bought your car?",
-                          "Could you share the year you bought your car?"],
+        "model_year": ["Can you tell me the model year of your car?",
+                       "Could you let me know the model year of your vehicle?",
+                       "Can you provide the year in which your car was manufactured?",
+                       "Could you share the model year of your car?"],
 
         "make": ["What's the make or company name of your car?",
                  "Can you tell me the brand or manufacturer of your car?",
@@ -135,7 +133,7 @@ class InstantOffer:
     }
 
     RESULT_JSON = {
-        "purchase_year": "",
+        "model_year": "",
         "make": "",
         "model": "",
         "postal_code": "",

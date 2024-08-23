@@ -133,3 +133,4 @@ log/
 logs/
 .idea/
 .DS_Store
+backend/static
