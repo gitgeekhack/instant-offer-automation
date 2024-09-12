@@ -10,8 +10,9 @@ from app.common.web_socket_utils import websocket_manager
 
 
 class AudioHandler:
-    def __init__(self):
+    def __init__(self, openai):
         self.recognizer = sr.Recognizer()
+        self.openai = openai
 
     async def save_as_mp3(self, websocket, broadcast_response, name, audio_data, channel_id, path=InstantOffer.VOICE_NOTE_PATH):
         """ This method is used to save recorded audio as MP3 in a specified folder """
