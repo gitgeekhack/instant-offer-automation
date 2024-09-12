@@ -32,7 +32,7 @@ async function initializeWebSocket() {
         analyser.fftSize = 2048;
         dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-        socket = new WebSocket(`ws://${host_url}/ws/${channelId}`);
+        socket = new WebSocket(`wss://${host_url}/ws/${channelId}`);
 
         socket.onopen = () => {
             console.log('WebSocket connection established');
