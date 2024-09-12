@@ -3,7 +3,7 @@ let recorder;
 let isRecording = false;
 
 const channelId = generateUUID();
-const host_url = "localhost:8080"
+const host_url = "staging-voicebot-demo.marutitech.com/instant-offer-automation-backend"
 
 const generateOfferButton = document.getElementById('generateOfferButton');
 const question = document.getElementById('question');
