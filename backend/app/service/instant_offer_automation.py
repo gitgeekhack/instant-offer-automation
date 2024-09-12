@@ -1,8 +1,9 @@
+import re
 import json
 import copy
 import random
 import os.path
-
+from num2words import num2words
 
 from app.constants import InstantOffer
 from app.service.helper.handle_audio import AudioHandler
@@ -24,6 +25,17 @@ class InstantOfferAutomation:
         llm_response = await self.openai.invoke_gpt4o(prompt, result_json)
         return llm_response
 
+    async def __convert_numbers_to_words(self, text):
+        # Function to convert a number to words
+        def convert_match(match):
+            number = int(match.group())
+            return num2words(number)
+
+        # Use regex to find all numbers and replace them with their word equivalent
+        converted_text = re.sub(r'\b\d+\b', convert_match, text)
+
+        return converted_text
+
     async def __publish_successful_message(self, channel_id, result_json):
         """ This method is used to prepare and publish the successful response of the offer """
 
@@ -36,8 +48,10 @@ class InstantOfferAutomation:
         json_description_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", json_description_path)
 
         successful_terminate = InstantOffer.QUESTIONS['successful_terminate'].format(offer_price=offer_price)
-        successful_terminate_path = await self.openai.text_to_speech(successful_terminate, "successful_terminate")
+        successful_terminate_num2wrd = copy.deepcopy(successful_terminate)
+        successful_terminate_path = await self.openai.text_to_speech(successful_terminate_num2wrd, "successful_terminate")
         successful_terminate_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", successful_terminate_path)
+
 
         unsuccessful_terminate = InstantOffer.QUESTIONS['unsuccessful_terminate']
         unsuccessful_terminate_path = await self.openai.text_to_speech(unsuccessful_terminate, "unsuccessful_terminate")
