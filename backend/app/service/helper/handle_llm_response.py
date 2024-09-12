@@ -14,7 +14,7 @@ class LLMResponseHandler:
 
     def __init__(self, openai):
         self.openai = openai
-        self.audio_handler = AudioHandler()
+        self.audio_handler = AudioHandler(self.openai)
 
     async def update_result_json(self, result_json, llm_response):
         for key in result_json.keys():

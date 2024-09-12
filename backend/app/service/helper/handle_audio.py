@@ -34,7 +34,11 @@ class AudioHandler:
             logger.info(f"User Response: {user_response}")
 
         except sr.UnknownValueError:
-            error_message = {"error_message": "Speech not recognized. Please try again."}
+            error_message = "Speech not recognized. Please try again."
+            error_message_path = await self.openai.text_to_speech(error_message, 'error_message')
+            error_message_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", error_message_path)
+            broadcast_response['error']['path'] = error_message_path
+            broadcast_response['error']['message'] = error_message
             await websocket_manager.broadcast(broadcast_response, channel_id)
             audio_data = await websocket.receive()
             mp3_data = await self.save_as_mp3(websocket, broadcast_response, name, audio_data, channel_id)

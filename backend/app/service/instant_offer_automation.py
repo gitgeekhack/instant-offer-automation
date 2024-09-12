@@ -13,7 +13,7 @@ class InstantOfferAutomation:
 
     def __init__(self, openai):
         self.openai = openai
-        self.audio_handler = AudioHandler()
+        self.audio_handler = AudioHandler(self.openai)
         self.llm_response_handler = LLMResponseHandler(openai)
 
     async def __get_result_description(self, result_json):

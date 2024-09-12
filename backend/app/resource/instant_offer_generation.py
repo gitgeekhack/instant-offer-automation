@@ -15,7 +15,7 @@ class InstantOfferGenerator:
     def __init__(self):
         self.openai = OpenAI()
         self.recognizer = sr.Recognizer()
-        self.audio_handle = AudioHandler()
+        self.audio_handle = AudioHandler(self.openai)
         self.instant_offer_automation = InstantOfferAutomation(self.openai)
 
     async def _handle_error(self, error: Exception, channel_id: str):
