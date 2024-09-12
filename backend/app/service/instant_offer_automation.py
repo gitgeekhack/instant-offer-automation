@@ -5,6 +5,7 @@ import random
 import os.path
 from num2words import num2words
 
+from app import logger
 from app.constants import InstantOffer
 from app.service.helper.handle_audio import AudioHandler
 from app.common.web_socket_utils import websocket_manager
@@ -49,9 +50,11 @@ class InstantOfferAutomation:
 
         successful_terminate = InstantOffer.QUESTIONS['successful_terminate'].format(offer_price=offer_price)
         successful_terminate_num2wrd = copy.deepcopy(successful_terminate)
-        successful_terminate_path = await self.openai.text_to_speech(successful_terminate_num2wrd, "successful_terminate")
+        successful_terminate_num2wrd = await self.__convert_numbers_to_words(successful_terminate_num2wrd)
+        logger.info(f"Success Message: {successful_terminate_num2wrd}")
+        successful_terminate_path = await self.openai.text_to_speech(successful_terminate_num2wrd,
+                                                                     "successful_terminate")
         successful_terminate_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", successful_terminate_path)
-
 
         unsuccessful_terminate = InstantOffer.QUESTIONS['unsuccessful_terminate']
         unsuccessful_terminate_path = await self.openai.text_to_speech(unsuccessful_terminate, "unsuccessful_terminate")
