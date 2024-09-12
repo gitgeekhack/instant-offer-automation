@@ -5,7 +5,7 @@ import random
 import os.path
 from num2words import num2words
 
-from app import logger
+from app.common.utils import logger
 from app.constants import InstantOffer
 from app.service.helper.handle_audio import AudioHandler
 from app.common.web_socket_utils import websocket_manager
