@@ -76,6 +76,7 @@ class InstantOffer:
         
         model_year:
         - Extract the year in YYYY format.
+        - If the user provides a year greater than the current year which is {current_year}, add a new key "error_message" with an informative error_message in the final JSON response.
         - If the user provides a year in an abbreviated format (e.g., "04 Chevy Cobalt"), interpret the abbreviated year based on context:
             - For your knowledge, the current year is {current_year}
             - If the abbreviation is a two-digit number between "00" and "99," consider whether it logically refers to a year in the 2000s or 1900s based on the make and model provided (e.g., "04" might be "2004", while "99" might be "1999").
@@ -173,11 +174,12 @@ class InstantOffer:
 
         DESCRIPTION_PROMPT = """
         Create a concise description of the vehicle based on the provided JSON data. The description should:
-
+    
         - Clearly mention the vehicle's year, make, and model.
         - Include the mileage of the vehicle.
         - Reference the location using the postal code. If only a postal code is provided, translate it into the corresponding city and state.
-        - Use a conversational tone to make the description feel like it's coming from a knowledgeable agent.
+        
+        Note: Don't start the sentence with Hey There!. Just give a proper description of present datapoints.
         
         Finally, instruct the user:
         "If the details match your vehicle, please press the 'YES' button to confirm. If there’s anything incorrect, press the 'NO' button."
