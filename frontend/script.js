@@ -14,6 +14,10 @@ const termination_message = document.getElementById('termination_message');
 const audioPlayer = document.getElementById('audioPlayer');
 const result_container = document.getElementById('result_container');
 
+const json_description = document.getElementById('json_description')
+const successButton = document.getElementById('successButton')
+const unsuccessButton = document.getElementById('unsuccessButton')
+
 generateOfferButton.addEventListener('click', initializeWebSocket);
 
 async function initializeWebSocket() {
@@ -121,6 +125,10 @@ async function handleSocketMessage(event) {
             updateUIElement(question, message.question.text, "Question: ")
             console.log("Question:", message.question.text);
             await playAudio(message.question.path);
+
+            status.style.display = 'block';
+            status.textContent = "Listening Audio...";
+            await startRecording();
         }
     }
 
@@ -133,6 +141,10 @@ async function handleSocketMessage(event) {
             updateUIElement(question, message.question.text, "Question: ")
             console.log("Question:", message.question.text);
             await playAudio(message.question.path);
+
+            status.style.display = 'block';
+            status.textContent = "Listening Audio...";
+            await startRecording();
         }
     }
 
@@ -142,24 +154,61 @@ async function handleSocketMessage(event) {
         updateUIElement(question, message.question.text, "Question: ")
         console.log("Question:", message.question.text);
         await playAudio(message.question.path);
+
+        status.style.display = 'block';
+        status.textContent = "Listening Audio...";
+        await startRecording();
     }
 
-    else if (message.terminate && message.terminate.message) {
+    else if (message.intermediate_terminate && message.intermediate_terminate.message) {
         status.style.display = 'none';
         question.style.display = 'none';
         error_message.style.display = 'none';
-        updateUIElement(termination_message, message.terminate.message)
-        if (message.terminate.path) {
+        updateUIElement(termination_message, message.intermediate_terminate.message)
+        if (message.intermediate_terminate.path) {
             status.style.display = 'none';
-            await playAudio(message.terminate.path);
+            await playAudio(message.intermediate_terminate.path);
         }
-        console.log("Termination message: ", message.terminate.message);
+        console.log("Termination message: ", message.intermediate_terminate.message);
         return;
     }
 
-    status.style.display = 'block';
-    status.textContent = "Listening Audio...";
-    await startRecording();
+   else if (message.final_response.json_description && message.final_response.json_description.message)
+   {
+       status.style.display = 'none';
+       question.style.display = 'none';
+       error_message.style.display = 'none';
+
+       updateUIElement(json_description, message.final_response.json_description.message);
+       if (message.final_response.json_description.path) {
+        await playAudio(message.final_response.json_description.path);
+       }
+
+       successButton.style.display = 'inline-block';
+       unsuccessButton.style.display = 'inline-block';
+
+        successButton.onclick = async () => {
+            if (message.final_response.successful_terminate) {
+                successButton.style.display = 'none';
+                unsuccessButton.style.display = 'none';
+                updateUIElement(termination_message, message.final_response.successful_terminate.message);
+                if (message.final_response.successful_terminate.path) {
+                    await playAudio(message.final_response.successful_terminate.path);
+                }
+            }
+        };
+
+        unsuccessButton.onclick = async () => {
+            if (message.final_response.unsuccessful_terminate) {
+                successButton.style.display = 'none';
+                unsuccessButton.style.display = 'none';
+                updateUIElement(termination_message, message.final_response.unsuccessful_terminate.message);
+                if (message.final_response.unsuccessful_terminate.path) {
+                    await playAudio(message.final_response.unsuccessful_terminate.path);
+                }
+            }
+        };
+   }
 }
 
 function playAudio(filepath) {
@@ -193,7 +242,7 @@ async function startRecording() {
 function monitorAudioLevels() {
     let silenceStart = null;
     const silenceThreshold = 10;
-    const silenceDuration = 3000;
+    const silenceDuration = 2000;
 
     function checkAudioLevel() {
         analyser.getByteFrequencyData(dataArray);

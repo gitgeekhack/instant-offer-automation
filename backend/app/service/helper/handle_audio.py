@@ -34,9 +34,8 @@ class AudioHandler:
             logger.info(f"User Response: {user_response}")
 
         except sr.UnknownValueError:
-
-            # error_message = {"error_message": "Speech not recognized. Please try again."}
-            # await websocket_manager.broadcast(broadcast_response, channel_id)
+            error_message = {"error_message": "Speech not recognized. Please try again."}
+            await websocket_manager.broadcast(broadcast_response, channel_id)
             audio_data = await websocket.receive()
             mp3_data = await self.save_as_mp3(websocket, broadcast_response, name, audio_data, channel_id)
             return mp3_data
@@ -46,4 +45,3 @@ class AudioHandler:
 
         logger.info(f"[Execution Time] Save MP3 file for {name} is completed in: {time.time() - x} seconds.")
         return {"file_path": full_path, "user_response": user_response, "error_message": error_message}
-

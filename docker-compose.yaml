@@ -1,13 +1,6 @@
 version: "3.4"
 
 services:
-  frontend:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    ports:
-      - "8090:8090"
-
   backend:
     build:
       context: backend

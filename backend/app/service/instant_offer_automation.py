@@ -16,16 +16,43 @@ class InstantOfferAutomation:
         self.audio_handler = AudioHandler()
         self.llm_response_handler = LLMResponseHandler(openai)
 
-    async def __publish_successful_message(self, channel_id, result_json):
+    async def __get_result_description(self, result_json):
+        """ This method is used to get the result description """
 
-        successful_message = InstantOffer.QUESTIONS['successful_terminate']
-        success_file_path = await self.openai.text_to_speech(successful_message, "successful_message")
-        success_file_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", success_file_path)
+        prompt = InstantOffer.Prompt.DESCRIPTION_PROMPT
+        llm_response = await self.openai.invoke_gpt4o(prompt, result_json)
+        return llm_response
+
+    async def __publish_successful_message(self, channel_id, result_json):
+        """ This method is used to prepare and publish the successful response of the offer """
+
+        offer_price = random.randint(1000, 2000)
 
         broadcast_response = copy.deepcopy(InstantOffer.BROADCAST_MESSAGE)
-        broadcast_response['terminate']['path'] = success_file_path
-        broadcast_response['terminate']['message'] = successful_message
+
+        json_description = await self.__get_result_description(str(result_json))
+        json_description_path = await self.openai.text_to_speech(json_description, "json_description")
+        json_description_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", json_description_path)
+
+        successful_terminate = InstantOffer.QUESTIONS['successful_terminate'].format(offer_price=offer_price)
+        successful_terminate_path = await self.openai.text_to_speech(successful_terminate, "successful_terminate")
+        successful_terminate_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", successful_terminate_path)
+
+        unsuccessful_terminate = InstantOffer.QUESTIONS['unsuccessful_terminate']
+        unsuccessful_terminate_path = await self.openai.text_to_speech(unsuccessful_terminate, "unsuccessful_terminate")
+        unsuccessful_terminate_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", unsuccessful_terminate_path)
+
+        broadcast_response['final_response']['json_description']['path'] = json_description_path
+        broadcast_response['final_response']['json_description']['message'] = json_description
+
+        broadcast_response['final_response']['successful_terminate']['path'] = successful_terminate_path
+        broadcast_response['final_response']['successful_terminate']['message'] = successful_terminate
+
+        broadcast_response['final_response']['unsuccessful_terminate']['path'] = unsuccessful_terminate_path
+        broadcast_response['final_response']['unsuccessful_terminate']['message'] = unsuccessful_terminate
+
         broadcast_response['result_json'] = json.dumps(result_json)
+
         await websocket_manager.broadcast(broadcast_response, channel_id)
 
     async def __broadcast_max_retry_error(self, channel_id, question_key, user_response):
@@ -48,9 +75,10 @@ class InstantOfferAutomation:
                                                                              question, user_response, result_json,
                                                                              retry_count=1)
 
-        if not user_response.get('is_negation', ''):
+        if not user_response.get('is_negation', '') and not user_response.get('error_message', ''):
             result_json = await self.llm_response_handler.update_result_json(result_json, user_response)
-        else:
+
+        elif user_response.get('is_negation', ''):
             result_json.update({'is_negation': True})
 
         return result_json
