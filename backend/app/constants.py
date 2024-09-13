@@ -3,7 +3,7 @@ import requests
 
 
 class InstantOffer:
-    MAX_RETRY = 5
+    MAX_RETRY = 3
     VOICE_NOTE_URL = "https://staging-voicebot-demo.marutitech.com/instant-offer-automation-backend"
     VOICE_NOTE_PATH = "static/questions"
     RESPONSE_PATH = "static/user_responses.json"
@@ -68,12 +68,12 @@ class InstantOffer:
         STRICTLY follow the JSON format of result_json: {result_json} and fill the values accordingly.
         Consider the values present in {result_json} while extracting information from user response.
         You need to extract the information regarding the {question_key} only. Hence consider that accordingly for giving error_message.
-        
+
         The current question type is: {question_key}
         Possible values for question_type are: "generic", "year", "make", "model"
 
         Follow these guidelines:
-        
+
         model_year:
         - Extract the year in YYYY format.
         - If the user provides a year greater than the current year which is {current_year}, add a new key "error_message" with an informative error_message in the final JSON response.
@@ -82,29 +82,29 @@ class InstantOffer:
             - If the abbreviation is a two-digit number between "00" and "99," consider whether it logically refers to a year in the 2000s or 1900s based on the make and model provided (e.g., "04" might be "2004", while "99" might be "1999").
         - If the user expresses uncertainty (e.g., "I don't know the year"), add a new key "is_negation": True.
         - If the question_type is "year" and if you find unrelated response, other than the negation, add a new key "error_message" with an informative error_message in the final JSON response.
-        
+
         make:
         - Extract the car manufacturer's name or car's make.
         - If the user provides a short form of the make, use your knowledge to convert into an appropriate format (e.g., Chevy -> Chevrolet)
         - If the user expresses uncertainty (e.g., "I don't know the make"), add a new key "is_negation": True.
         - If the question_type is "make" and the if the response is unrelated or incorrect, add a new key "error_message" with an informative error message in the final JSON.
-        
+
         model:
         - Extract the car model name.
         - Verify that the model belongs to the extracted make.
         - If the user expresses uncertainty (e.g., "I don't know the make"), add a new key "is_negation": True.
         - If the question_type is "model" and if you find unrelated response, other than the negation, add a new key "error_message" with an informative error_message in the final JSON response.
-        
+
         *Validation of make-model* :
         - After extracting the make and model, use your knowledge to verify if the combination is valid.
         - If the make-model combination is invalid (e.g., "BMW Mustang" or "Toyota Impala" etc.), add a new key "error_message" with an informative error message in the final JSON.
         - If the make-model combination is invalid, STRICTLY don't try to make it correct, instead add a new key "error_message" with an informative error message in the final JSON. 
-        
+
         Note:
         - Don't give an error_message for missing information unless the question_type specifically asks for that information.
         - If the question_type is "generic", all 3 datapoints (make, model, and year) may or may not be present. Don't give an error_message for missing information in this case.
         - If the question_type is a specific datapoint (year, make, or model), then give an error_message only if that particular datapoint is missing or incorrect.
-        
+
         Analyze the user's response and update the dictionary accordingly.
         {result_json}
         """
@@ -113,9 +113,9 @@ class InstantOffer:
         You are an agent for a car selling website who's job is to verify the details provided by the user.
         Your task is to extract the Postal Code/Zip Code from the user's response and provide the result strictly in the JSON format as shown below.
         STRICTLY follow the JSON format of {result_json}.
-        
+
         Follow these guidelines for extraction of postal_code:
-        
+
         - Your task is to extract a postal code.
         - STRICTLY validate that, if the user provides other than a 5 digit or 9 digit postal code, add a new key "error_message" with an informative error_message in the final JSON.
         - If the user provides a geographic location along with the postal code (e.g., "47345-9775"), only extract and use the first 5 digits of the postal code.
@@ -125,7 +125,7 @@ class InstantOffer:
         - If the user mentions a city name instead of a postal code (e.g., "I don't exactly know, It's in Auburn Hills"), provide the central postal code for that city in the response. Use your knowledge to determine the central postal code for the mentioned city.
         - If a number, separated by commas, is provided, consider the whole sequence as a valid postal code and don't give an error message.
         - If the user expresses complete uncertainty without mentioning any useful information to extract the postal code in the response (e.g., "I don't know the postal code"), add a new key "is_negation": True.
-        
+
         Note:
         - Strictly Ensure that the format of {result_json} is not changed in the final response.
         """
@@ -134,7 +134,7 @@ class InstantOffer:
         You are an agent for a car selling website whose job is to verify the details provided by the user.
         Your task is to extract the mileage from the user's response and provide the result strictly in the JSON format as shown below.
         STRICTLY follow the JSON format of {result_json}.
-        
+
         Follow these guidelines for extraction of mileage:
         - Extract the mileage. For any numeric input including the number zero, consider it as a valid and correct mileage and add in the final JSON.
         - Ensure the mileage contains only numeric characters.
@@ -144,13 +144,13 @@ class InstantOffer:
         - If the user provides the mileage as a range, add a new key "error_message" with an informative error_message in the final JSON response.
         - Don't set the "is_negation" to True, for the mileage datapoint.
         - If the user provides an approximate or uncertain mileage (e.g. "It's 200 and something thousand, I think" or "it's over 200,000" or "roughly 185,000 miles"), extract the numeric value provided and use that as the final mileage. Ignore any qualifiers or uncertainties expressed.
-        
+
         Example responses and their corresponding mileage extractions:
         - "It's 200 and something thousand, I think" -> 200000
         - "it's over 200,000" -> 200000
         - "roughly 185,000 miles" -> 185000
         In these cases, always round to the nearest thousand if necessary and assume the value is in miles.
-        
+
         Note:
         - Strictly Ensure that the format of {result_json} is not changed in the final response.
         """
@@ -268,19 +268,17 @@ class InstantOffer:
             "path": "",
             "message": ""
         },
-        "final_response": {
-            "json_description": {
-                "path": "",
-                "message": ""
-            },
-            "successful_terminate": {
-                "path": "",
-                "message": ""
-            },
-            "unsuccessful_terminate": {
-                "path": "",
-                "message": ""
-            }
+        "json_description": {
+            "path": "",
+            "message": ""
+        },
+        "successful_terminate": {
+            "path": "",
+            "message": ""
+        },
+        "unsuccessful_terminate": {
+            "path": "",
+            "message": ""
         },
         "user_response": "",
         "result_json": "",

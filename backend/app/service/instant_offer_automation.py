@@ -30,17 +30,15 @@ class InstantOfferAutomation:
         # Function to convert a number to words
         def convert_match(match):
             number = int(match.group())
-            return num2words(number)
+            return num2words(number) + 'dollars.'
 
         # Use regex to find all numbers and replace them with their word equivalent
         converted_text = re.sub(r'\b\d+\b', convert_match, text)
 
         return converted_text
 
-    async def __publish_successful_message(self, channel_id, result_json):
+    async def __publish_json_description_message(self, channel_id, result_json):
         """ This method is used to prepare and publish the successful response of the offer """
-
-        offer_price = random.randint(1000, 2000)
 
         broadcast_response = copy.deepcopy(InstantOffer.BROADCAST_MESSAGE)
 
@@ -48,26 +46,45 @@ class InstantOfferAutomation:
         json_description_path = await self.openai.text_to_speech(json_description, "json_description")
         json_description_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", json_description_path)
 
+        broadcast_response['json_description']['path'] = json_description_path
+        broadcast_response['json_description']['message'] = json_description
+
+        broadcast_response['result_json'] = json.dumps(result_json)
+
+        await websocket_manager.broadcast(broadcast_response, channel_id)
+
+    async def __publish_success_message(self, channel_id, result_json):
+        """ This method is used to prepare and publish the successful response of the offer """
+
+        offer_price = random.randint(1000, 2000)
+
+        broadcast_response = copy.deepcopy(InstantOffer.BROADCAST_MESSAGE)
+
         successful_terminate = InstantOffer.QUESTIONS['successful_terminate'].format(offer_price=offer_price)
         successful_terminate_num2wrd = copy.deepcopy(successful_terminate)
         successful_terminate_num2wrd = await self.__convert_numbers_to_words(successful_terminate_num2wrd)
-        logger.info(f"Success Message: {successful_terminate_num2wrd}")
         successful_terminate_path = await self.openai.text_to_speech(successful_terminate_num2wrd,
                                                                      "successful_terminate")
         successful_terminate_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", successful_terminate_path)
+
+        broadcast_response['successful_terminate']['path'] = successful_terminate_path
+        broadcast_response['successful_terminate']['message'] = successful_terminate
+
+        broadcast_response['result_json'] = json.dumps(result_json)
+
+        await websocket_manager.broadcast(broadcast_response, channel_id)
+
+    async def __publish_unsuccess_message(self, channel_id, result_json):
+        """ This method is used to prepare and publish the successful response of the offer """
+
+        broadcast_response = copy.deepcopy(InstantOffer.BROADCAST_MESSAGE)
 
         unsuccessful_terminate = InstantOffer.QUESTIONS['unsuccessful_terminate']
         unsuccessful_terminate_path = await self.openai.text_to_speech(unsuccessful_terminate, "unsuccessful_terminate")
         unsuccessful_terminate_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", unsuccessful_terminate_path)
 
-        broadcast_response['final_response']['json_description']['path'] = json_description_path
-        broadcast_response['final_response']['json_description']['message'] = json_description
-
-        broadcast_response['final_response']['successful_terminate']['path'] = successful_terminate_path
-        broadcast_response['final_response']['successful_terminate']['message'] = successful_terminate
-
-        broadcast_response['final_response']['unsuccessful_terminate']['path'] = unsuccessful_terminate_path
-        broadcast_response['final_response']['unsuccessful_terminate']['message'] = unsuccessful_terminate
+        broadcast_response['unsuccessful_terminate']['path'] = unsuccessful_terminate_path
+        broadcast_response['unsuccessful_terminate']['message'] = unsuccessful_terminate
 
         broadcast_response['result_json'] = json.dumps(result_json)
 
@@ -110,7 +127,16 @@ class InstantOfferAutomation:
 
         for index, (question_key, question) in enumerate(InstantOffer.QUESTIONS.items()):
             if question_key == "successful_terminate":
-                await self.__publish_successful_message(channel_id, result_json)
+                await self.__publish_json_description_message(channel_id, result_json)
+                event_data = await websocket.receive()
+                event_message = json.loads(event_data['text'])['event']
+
+                if event_message == 'Success':
+                   await self.__publish_success_message(channel_id, result_json)
+
+                elif event_message == 'Unsuccess':
+                    await self.__publish_unsuccess_message(channel_id, result_json)
+
                 break
 
             if question_key != "generic_question" and result_json[question_key] != "":

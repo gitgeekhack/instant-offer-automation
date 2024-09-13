@@ -66,8 +66,6 @@ class LLMResponseHandler:
 
         if llm_response.get('error_message', ''):
             if retry_count < InstantOffer.MAX_RETRY:
-                if question_key == 'generic_question':
-                    return False
 
                 error_msg = llm_response.get('error_message')
                 error_file_path = await self.openai.text_to_speech(error_msg, f'error_{question_key}')
@@ -80,6 +78,10 @@ class LLMResponseHandler:
 
                 question_file_path = await self.openai.text_to_speech(question, question_key)
                 logger.info(f"Agent: {question}")
+
+                if question_key == 'generic_question':
+                    await websocket_manager.broadcast(broadcast_response, channel_id)
+                    return False
 
                 question_file_path = os.path.join(InstantOffer.VOICE_NOTE_URL, "uploads", question_file_path)
                 broadcast_response['question']['path'] = question_file_path

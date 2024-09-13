@@ -32,7 +32,7 @@ async function initializeWebSocket() {
         analyser.fftSize = 2048;
         dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-        socket = new WebSocket(`wss://${host_url}/ws/${channelId}`);
+        socket = new WebSocket(`ws://${host_url}/ws/${channelId}`);
 
         socket.onopen = () => {
             console.log('WebSocket connection established');
@@ -57,6 +57,19 @@ async function initializeWebSocket() {
         return;
     }
 }
+
+successButton.onclick = async () => {
+    successButton.style.display = 'none';
+    unsuccessButton.style.display = 'none';
+    socket.send(JSON.stringify({ event: 'Success' }));
+};
+
+unsuccessButton.onclick = async () => {
+    successButton.style.display = 'none';
+    unsuccessButton.style.display = 'none';
+    socket.send(JSON.stringify({ event: 'Unsuccess' }));
+};
+
 
 function displayResultJson(result_json) {
     result_container.innerHTML = '';
@@ -173,42 +186,40 @@ async function handleSocketMessage(event) {
         return;
     }
 
-   else if (message.final_response.json_description && message.final_response.json_description.message)
+   else if (message.json_description && message.json_description.message)
    {
        status.style.display = 'none';
        question.style.display = 'none';
        error_message.style.display = 'none';
 
-       updateUIElement(json_description, message.final_response.json_description.message);
-       if (message.final_response.json_description.path) {
-        await playAudio(message.final_response.json_description.path);
+       updateUIElement(json_description, message.json_description.message);
+       if (message.json_description.path) {
+        await playAudio(message.json_description.path);
        }
 
        successButton.style.display = 'inline-block';
        unsuccessButton.style.display = 'inline-block';
 
-        successButton.onclick = async () => {
-            if (message.final_response.successful_terminate) {
-                successButton.style.display = 'none';
-                unsuccessButton.style.display = 'none';
-                updateUIElement(termination_message, message.final_response.successful_terminate.message);
-                if (message.final_response.successful_terminate.path) {
-                    await playAudio(message.final_response.successful_terminate.path);
-                }
-            }
-        };
-
-        unsuccessButton.onclick = async () => {
-            if (message.final_response.unsuccessful_terminate) {
-                successButton.style.display = 'none';
-                unsuccessButton.style.display = 'none';
-                updateUIElement(termination_message, message.final_response.unsuccessful_terminate.message);
-                if (message.final_response.unsuccessful_terminate.path) {
-                    await playAudio(message.final_response.unsuccessful_terminate.path);
-                }
-            }
-        };
    }
+
+    else if (message.successful_terminate && message.successful_terminate.message) {
+        successButton.style.display = 'none';
+        unsuccessButton.style.display = 'none';
+        updateUIElement(termination_message, message.successful_terminate.message);
+        if (message.successful_terminate.path) {
+            await playAudio(message.successful_terminate.path);
+        }
+    }
+
+    else if (message.unsuccessful_terminate && message.unsuccessful_terminate.message) {
+        successButton.style.display = 'none';
+        unsuccessButton.style.display = 'none';
+        updateUIElement(termination_message, message.unsuccessful_terminate.message);
+        if (message.unsuccessful_terminate.path) {
+            await playAudio(message.unsuccessful_terminate.path);
+        }
+    }
+
 }
 
 function playAudio(filepath) {
