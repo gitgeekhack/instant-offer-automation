@@ -15,7 +15,7 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.mount("/instant-offer-automation-backend/uploads", StaticFiles(directory=InstantOffer.VOICE_NOTE_PATH),
+    app.mount("/uploads", StaticFiles(directory=InstantOffer.VOICE_NOTE_PATH),
               name="uploads")
     logger = get_logger()
     logger.info("FastAPI Server Started...")
